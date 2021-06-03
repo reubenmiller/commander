@@ -201,7 +201,7 @@ func (m JSONMatcher) Match(got interface{}, expected interface{}) MatcherResult 
 		}
 
 		e = ExpandEnv(e)
-		if !IsMatch(fmt.Sprintf("%v", r.Value()), e) {
+		if !IsMatch(r.Value(), e) {
 			result.Success = false
 			result.Diff = fmt.Sprintf(`Expected json path "%s" with result
 
@@ -221,16 +221,27 @@ var (
 	PatternPrefix = "r/"
 )
 
-func IsMatch(value string, pattern string) bool {
+func IsMatch(value interface{}, pattern string) bool {
+	inputValue := ""
+	switch v := value.(type) {
+	case map[string]interface{}:
+		// Match against an empty
+		if len(v) == 0 {
+			inputValue = "{}"
+		}
+	default:
+		inputValue = fmt.Sprintf("%v", v)
+	}
+
 	if !IsPattern(pattern) {
-		return value == pattern
+		return inputValue == pattern
 	}
 
 	rPattern, err := CompilePattern(pattern)
 	if err != nil {
 		return false
 	}
-	return rPattern.MatchString(value)
+	return rPattern.MatchString(inputValue)
 
 }
 
