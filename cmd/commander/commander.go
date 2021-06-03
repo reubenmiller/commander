@@ -85,7 +85,7 @@ commander test commander.yaml --filter="^filter1$"
 			},
 			cli.BoolFlag{
 				Name:  "dir",
-				Usage: "Execute all test files in a directory sorted by file name, this is not recursive - e.g. /path/to/test_files/",
+				Usage: "Execute all test files in a directory sorted by file name (recursively) - e.g. /path/to/test_files/",
 			},
 			cli.StringFlag{
 				Name:  "workdir",
