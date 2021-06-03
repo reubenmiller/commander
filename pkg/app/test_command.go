@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/commander-cli/commander/v2/pkg/output"
@@ -86,26 +86,28 @@ func testFile(filePath string, fileName string, filters runtime.Filters) (runtim
 
 func testDir(directory string, filters runtime.Filters) (runtime.Result, error) {
 	result := runtime.Result{}
-	files, err := ioutil.ReadDir(directory)
-	if err != nil {
+
+	if s, err := os.Stat(directory); err != nil || !s.IsDir() {
 		return result, fmt.Errorf("Error: Input is not a directory")
 	}
 
-	for _, f := range files {
-		if f.IsDir() {
-			continue // skip dirs
+	err := filepath.Walk(directory, func(p string, f os.FileInfo, err error) error {
+		if err != nil {
+			return err
 		}
-
-		p := path.Join(directory, f.Name())
+		if f.IsDir() {
+			return nil
+		}
 		newResult, err := testFile(p, f.Name(), filters)
 		if err != nil {
-			return result, err
+			return err
 		}
 
 		result = convergeResults(result, newResult)
-	}
+		return nil
+	})
 
-	return result, nil
+	return result, err
 }
 
 func testURL(url string, filters runtime.Filters) (runtime.Result, error) {
