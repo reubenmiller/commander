@@ -2,12 +2,15 @@ package matcher
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"regexp"
+	"strings"
+
 	"github.com/antchfx/xmlquery"
 	"github.com/pmezard/go-difflib/difflib"
 	"github.com/tidwall/gjson"
-	"io/ioutil"
-	"log"
-	"strings"
 )
 
 const (
@@ -197,7 +200,8 @@ func (m JSONMatcher) Match(got interface{}, expected interface{}) MatcherResult 
 			break
 		}
 
-		if fmt.Sprintf("%v", r.Value()) != e {
+		e = ExpandEnv(e)
+		if !IsMatch(fmt.Sprintf("%v", r.Value()), e) {
 			result.Success = false
 			result.Diff = fmt.Sprintf(`Expected json path "%s" with result
 
@@ -211,6 +215,38 @@ to be equal to
 	}
 
 	return result
+}
+
+var (
+	PatternPrefix = "r/"
+)
+
+func IsMatch(value string, pattern string) bool {
+	if !IsPattern(pattern) {
+		return value != pattern
+	}
+
+	rPattern, err := CompilePattern(pattern)
+	if err != nil {
+		return false
+	}
+	return rPattern.MatchString(value)
+
+}
+
+func IsPattern(v string) bool {
+	return strings.HasPrefix(v, PatternPrefix)
+}
+
+func CompilePattern(expr string) (*regexp.Regexp, error) {
+	if strings.HasPrefix(expr, PatternPrefix) {
+		expr = expr[len(PatternPrefix):]
+	}
+	return regexp.Compile(expr)
+}
+
+func ExpandEnv(v string) string {
+	return os.ExpandEnv(v)
 }
 
 type XMLMatcher struct {
@@ -244,6 +280,7 @@ func (m XMLMatcher) Match(got interface{}, expected interface{}) MatcherResult {
 			}
 		}
 
+		e = ExpandEnv(e)
 		if node.InnerText() != e {
 			result.Success = false
 			result.Diff = fmt.Sprintf(`Expected xml path "%s" with result
