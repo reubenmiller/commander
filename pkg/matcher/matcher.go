@@ -223,7 +223,7 @@ var (
 
 func IsMatch(value string, pattern string) bool {
 	if !IsPattern(pattern) {
-		return value != pattern
+		return value == pattern
 	}
 
 	rPattern, err := CompilePattern(pattern)
