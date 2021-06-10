@@ -98,6 +98,9 @@ func testDir(directory string, filters runtime.Filters) (runtime.Result, error) 
 		if f.IsDir() {
 			return nil
 		}
+		if !(strings.HasSuffix(f.Name(), ".yaml") || strings.HasSuffix(f.Name(), ".yml")) {
+			return nil
+		}
 		newResult, err := testFile(p, f.Name(), filters)
 		if err != nil {
 			return err
