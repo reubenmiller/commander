@@ -77,6 +77,13 @@ func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult
 		}
 	}
 
+	if expected.MatchPattern != "" {
+		m = matcher.NewMatcher(matcher.Pattern)
+		if result = m.Match(got, expected.MatchPattern); !result.Success {
+			return result
+		}
+	}
+
 	m = matcher.NewMatcher(matcher.Contains)
 	for _, c := range expected.Contains {
 		if result = m.Match(got, c); !result.Success {
@@ -86,6 +93,20 @@ func validateExpectedOut(got string, expected ExpectedOut) matcher.MatcherResult
 
 	if expected.LineCount != 0 {
 		result = validateExpectedLineCount(got, expected)
+		if !result.Success {
+			return result
+		}
+	}
+
+	if expected.LineCountMin != 0 {
+		result = validateExpectedLineCountMin(got, expected)
+		if !result.Success {
+			return result
+		}
+	}
+
+	if expected.LineCountMax != 0 {
+		result = validateExpectedLineCountMax(got, expected)
 		if !result.Success {
 			return result
 		}
@@ -138,6 +159,28 @@ func validateExpectedLineCount(got string, expected ExpectedOut) matcher.Matcher
 	}
 
 	return m.Match(count, expected.LineCount)
+}
+
+func validateExpectedLineCountMin(got string, expected ExpectedOut) matcher.MatcherResult {
+	m := matcher.NewMatcher(matcher.GreaterThanOrEqual)
+	count := strings.Count(got, getLineBreak()) + 1
+
+	if got == "" {
+		count = 0
+	}
+
+	return m.Match(count, expected.LineCountMin)
+}
+
+func validateExpectedLineCountMax(got string, expected ExpectedOut) matcher.MatcherResult {
+	m := matcher.NewMatcher(matcher.LessThanOrEqual)
+	count := strings.Count(got, getLineBreak()) + 1
+
+	if got == "" {
+		count = 0
+	}
+
+	return m.Match(count, expected.LineCountMax)
 }
 
 func validateExpectedLines(got string, expected ExpectedOut) matcher.MatcherResult {

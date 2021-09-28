@@ -1,0 +1,149 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "http://github.com/commander-cli.json",
+    "type": "object",
+    "title": "Commander test specification schema",
+    "description": "Test schema specification for defining tests",
+    "definitions": {
+        "config": {
+            "type": "object",
+            "title": "Configuration for the test. Config can overwrite global configurations",
+            "properties": {
+                "dir": {
+                    "type": "string",
+                    "title": "Sets the current working directory for the command under test. The test will fail if the given directory does not exist"
+                },
+                "timeout": {
+                    "type": "string",
+                    "title": "Maximum allowed time that a test is allowed to run",
+                    "examples": [
+                        "60s"
+                    ]
+                },
+                "retries": {
+                    "type": "integer",
+                    "title": "How often a test is allowed to fail until it will be marked as failed for the whole test run",
+                    "default": 0
+                },
+                "interval": {
+                    "type": "string",
+                    "title": "Interval between retries",
+                    "examples": [
+                        "5s"
+                    ]
+                },
+                "env": {
+                    "title": "Environment variables used in the test",
+                    "$ref": "#/definitions/environment"
+                },
+                "inherit-env": {
+                    "type": "boolean",
+                    "title": "Inherit all environment variables from your active shell",
+                    "default": false
+                }
+            }
+        },
+        "output": {
+            "type": "object",
+            "properties": {
+                "contains": {
+                    "type": "array",
+                    "title": "It check if a string is contained in the output",
+                    "items": [
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "exactly": {
+                    "type": "string",
+                    "title": "Exact expected output"
+                },
+                "match-pattern": {
+                    "type": "string",
+                    "title": "Expect output to match the given regular expression"
+                },
+                "json": {
+                    "type": "object",
+                    "title": "GJSON syntax items which represent the query and the value the expected value. If the value starts with 'r/' then a regular expression match will be used",
+                    "additionalProperties": true
+                },
+                "line-count": {
+                    "type": "integer",
+                    "title": "Asserts the amount of lines printed to the output. If set to 0 this property is ignored"
+                },
+                "line-count-min": {
+                    "type": "integer",
+                    "title": "Asserts the minimum amount of lines printed to the output. If set to 0 this property is ignored"
+                },
+                "line-count-max": {
+                    "type": "integer",
+                    "title": "Asserts the maximum amount of lines printed to the output. If set to 0 this property is ignored"
+                },
+                "not-contains": {
+                    "title": "Array of elements which are not allowed to be contained in the output. It is an inversion of contains",
+                    "type": "array",
+                    "items": [
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "file": {
+                    "type": "string",
+                    "title": "A path, relative to the working directory that will have its entire contents matched against the command output. Other than reading from file this works exactly the same as exactly"
+                }
+            }
+        },
+        "exitcode": {
+            "type": "integer",
+            "default": 0,
+            "title": "Compares the given code to the exit-code of the given command"
+        },
+        "environment": {
+            "type": "object",
+            "title": "Environment variables",
+            "additionalProperties": true
+        }
+    },
+    "default": {},
+    "required": [
+        "tests"
+    ],
+    "properties": {
+        "config": {
+            "title": "Global configuration for the test",
+            "$ref": "#/definitions/config"
+        },
+        "tests": {
+            "type": "object",
+            "title": "Collected tests",
+            "properties": {
+                "config": {
+                    "title": "Configuration for the test. Config can overwrite global configurations",
+                    "$ref": "#/definitions/config",
+                },
+                "command": {
+                    "type": "string",
+                    "title": "Command to be tested"
+                },
+                "stdout": {
+                    "$ref": "#/definitions/output"
+                },
+                "stderr": {
+                    "$ref": "#/definitions/output"
+                },
+                "exit-code": {
+                    "$ref": "#/definitions/exitcode"
+                },
+                "skip": {
+                    "type": "boolean",
+                    "title": "Skip the test case"
+                }
+            },
+            "required": [
+                "command"
+            ]
+        }
+    }
+}

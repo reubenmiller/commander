@@ -26,8 +26,11 @@ tests:
         - ✗ [local] 'file matcher should fail when file and output are different', on property 'Stdout'
         - ✗ [local] 'it will fail', on property 'ExitCode'
         - ✗ [local] 'test timeout' could not be executed with error message
+        - ✗ [local] 'it should match maximum number of line count', on property 'Stdout'
+        - ✗ [local] 'it should match minimum number of line count', on property 'Stdout'
+        - ✗ [local] 'it should failed when not matching a a regular expression', on property 'Stdout'
         - Command timed out after 10ms
-        - "Count: 3, Failed: 3"
+        - "Count: 6, Failed: 6"
     exit-code: 1
 
   it should validate a big output:
@@ -158,3 +161,25 @@ tests:
         - ✓ [local] should use key from config
         - ✓ [local] should use dir from config
     exit-code: 1
+
+  it should match using a regular expression:
+    command: printf "line1"
+    stdout:
+      match-pattern: '^line[0-9]$'
+  
+  it should match mulit lines using a regular expression:
+    command: printf "line1\nline2"
+    stdout:
+      match-pattern: '^line[0-9]\nline[0-9]$'
+
+  it should match minimum number of line count:
+    command: printf "line1\nline2\nline3\nline4"
+    stdout:
+      line-count-min: 4
+    exit-code: 0
+  
+  it should match maximum number of line count:
+    command: printf "line1\nline2\nline3\nline4"
+    stdout:
+      line-count-max: 4
+    exit-code: 0

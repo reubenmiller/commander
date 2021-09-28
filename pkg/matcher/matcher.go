@@ -16,10 +16,16 @@ import (
 const (
 	// Text matcher type
 	Text = "text"
+	// Pattern matcher type
+	Pattern = "pattern"
 	// Contains matcher type
 	Contains = "contains"
 	// Equal matcher type
 	Equal = "equal"
+	// GreaterThanOrEqual matcher type
+	GreaterThanOrEqual = "greaterthanorequal"
+	// LessThanOrEqual matcher type
+	LessThanOrEqual = "lessthanorequal"
 	// Not contains matcher type
 	NotContains = "notcontains"
 	JSON        = "json"
@@ -29,8 +35,11 @@ const (
 
 var (
 	_ Matcher = (*TextMatcher)(nil)
+	_ Matcher = (*PatternMatcher)(nil)
 	_ Matcher = (*ContainsMatcher)(nil)
 	_ Matcher = (*EqualMatcher)(nil)
+	_ Matcher = (*GreaterThanOrEqualMatcher)(nil)
+	_ Matcher = (*LessThanOrEqualMatcher)(nil)
 	_ Matcher = (*NotContainsMatcher)(nil)
 	_ Matcher = (*JSONMatcher)(nil)
 	_ Matcher = (*XMLMatcher)(nil)
@@ -46,10 +55,16 @@ func NewMatcher(matcher string) Matcher {
 	switch matcher {
 	case Text:
 		return TextMatcher{}
+	case Pattern:
+		return PatternMatcher{}
 	case Contains:
 		return ContainsMatcher{}
 	case Equal:
 		return EqualMatcher{}
+	case GreaterThanOrEqual:
+		return GreaterThanOrEqualMatcher{}
+	case LessThanOrEqual:
+		return LessThanOrEqualMatcher{}
 	case NotContains:
 		return NotContainsMatcher{}
 	case JSON:
@@ -82,7 +97,8 @@ type TextMatcher struct {
 func (m TextMatcher) Match(got interface{}, expected interface{}) MatcherResult {
 	result := true
 
-	if got != expected {
+	expectedPattern := fmt.Sprintf("%v", expected)
+	if !IsMatch(got, expectedPattern) {
 		result = false
 	}
 
@@ -135,7 +151,99 @@ type EqualMatcher struct {
 
 //Match matches the values if they are equal
 func (m EqualMatcher) Match(got interface{}, expected interface{}) MatcherResult {
-	if got == expected {
+	expectedPattern := fmt.Sprintf("%v", expected)
+
+	if IsMatch(got, expectedPattern) {
+		return MatcherResult{
+			Success: true,
+		}
+	}
+
+	diff := difflib.UnifiedDiff{
+		A:        difflib.SplitLines(fmt.Sprintf("%v", got)),
+		B:        difflib.SplitLines(fmt.Sprintf("%v", expected)),
+		FromFile: "Got",
+		ToFile:   "Expected",
+		Context:  3,
+	}
+	diffText, _ := difflib.GetUnifiedDiffString(diff)
+
+	return MatcherResult{
+		Success: false,
+		Diff:    diffText,
+	}
+}
+
+//PatternMatcher matches if given values are equal
+type PatternMatcher struct {
+}
+
+//Match matches the values if they are equal
+func (m PatternMatcher) Match(got interface{}, expected interface{}) MatcherResult {
+
+	rPattern, err := CompilePattern(fmt.Sprintf("%v", expected))
+	if err != nil {
+		return MatcherResult{
+			Success: false,
+			Diff:    fmt.Sprintf("invalid regular expression. pattern: %v, error: %s", expected, err),
+		}
+	}
+
+	if rPattern.MatchString(fmt.Sprintf("%v", got)) {
+		return MatcherResult{
+			Success: true,
+		}
+	}
+
+	diff := difflib.UnifiedDiff{
+		A:        difflib.SplitLines(fmt.Sprintf("%v", got)),
+		B:        difflib.SplitLines(fmt.Sprintf("%v", expected)),
+		FromFile: "Got",
+		ToFile:   "Expected",
+		Context:  3,
+	}
+	diffText, _ := difflib.GetUnifiedDiffString(diff)
+
+	return MatcherResult{
+		Success: false,
+		Diff:    diffText,
+	}
+}
+
+//GreaterThanOrEqualMatcher matches if given values are greater than
+type GreaterThanOrEqualMatcher struct {
+}
+
+//Match matches the values if they are greater than
+func (m GreaterThanOrEqualMatcher) Match(got interface{}, expected interface{}) MatcherResult {
+	if got.(int) >= expected.(int) {
+		return MatcherResult{
+			Success: true,
+		}
+	}
+
+	diff := difflib.UnifiedDiff{
+		A:        difflib.SplitLines(fmt.Sprintf("%v", got)),
+		B:        difflib.SplitLines(fmt.Sprintf("%v", expected)),
+		FromFile: "Got",
+		ToFile:   "Expected",
+		Context:  3,
+	}
+	diffText, _ := difflib.GetUnifiedDiffString(diff)
+
+	return MatcherResult{
+		Success: false,
+		Diff:    diffText,
+	}
+}
+
+//LessThanOrEqualMatcher matches if given values are less than
+type LessThanOrEqualMatcher struct {
+}
+
+//Match matches the values if they are less than
+func (m LessThanOrEqualMatcher) Match(got interface{}, expected interface{}) MatcherResult {
+	if got.(int) <= expected.(int) {
 		return MatcherResult{
 			Success: true,
 		}
@@ -250,14 +358,15 @@ func IsPattern(v string) bool {
 }
 
 func CompilePattern(expr string) (*regexp.Regexp, error) {
-	if strings.HasPrefix(expr, PatternPrefix) {
-		expr = expr[len(PatternPrefix):]
-	}
+	expr = strings.TrimPrefix(expr, PatternPrefix)
 	return regexp.Compile(expr)
 }
 
 func ExpandEnv(v string) string {
-	return os.ExpandEnv(v)
+	out := strings.ReplaceAll(v, "$$", "<dollar>")
+	out = os.ExpandEnv(out)
+	out = strings.ReplaceAll(out, "<dollar>", "$")
+	return out
 }
 
 type XMLMatcher struct {

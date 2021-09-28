@@ -206,7 +206,6 @@ func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) runtime.Expected
 	//If only a string was passed it is assigned to exactly automatically
 	case string:
 		exp.Contains = []string{toString(value)}
-		break
 
 	//If there is nested map set the properties will be assigned to the contains
 	case map[interface{}]interface{}:
@@ -218,13 +217,15 @@ func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) runtime.Expected
 			case
 				"contains",
 				"exactly",
+				"match-pattern",
 				"line-count",
+				"line-count-min",
+				"line-count-max",
 				"lines",
 				"json",
 				"xml",
 				"file",
 				"not-contains":
-				break
 			default:
 				panic(fmt.Sprintf("Key %s is not allowed.", k))
 			}
@@ -243,6 +244,11 @@ func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) runtime.Expected
 			exp.Exactly = toString(exactly)
 		}
 
+		//Parse match-pattern key
+		if pattern := v["match-pattern"]; pattern != nil {
+			exp.MatchPattern = toString(pattern)
+		}
+
 		// Parse file key
 		if file := v["file"]; file != nil {
 			exp.File = toString(file)
@@ -251,6 +257,14 @@ func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) runtime.Expected
 		//Parse line-count key
 		if lc := v["line-count"]; lc != nil {
 			exp.LineCount = lc.(int)
+		}
+
+		if lc := v["line-count-min"]; lc != nil {
+			exp.LineCountMin = lc.(int)
+		}
+
+		if lc := v["line-count-max"]; lc != nil {
+			exp.LineCountMax = lc.(int)
 		}
 
 		// Parse lines
@@ -274,8 +288,6 @@ func (y *YAMLSuiteConf) convertToExpectedOut(value interface{}) runtime.Expected
 				exp.JSON[k.(string)] = v.(string)
 			}
 		}
-		break
-
 	case nil:
 		break
 	default:

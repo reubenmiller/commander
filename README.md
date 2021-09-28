@@ -35,9 +35,12 @@ For more information take a look at the [quick start](#quick-start), the [exampl
     - [stdout](#stdout)
       * [contains](#contains)
       * [exactly](#exactly)
+      * [match-pattern](#match-pattern)
       * [json](#json)
       * [lines](#lines)
       * [line-count](#line-count)
+      * [line-count-min](#line-count-min)
+      * [line-count-max](#line-count-max)
       * [not-contains](#not-contains)
       * [xml](#xml)
       * [file](#file)
@@ -414,6 +417,10 @@ echo test:
     exactly: test
 ```
 
+##### match-pattern
+
+`match-pattern` asserts the output matches the expected regular expression
+
 ##### json
 
 `json` is a `map` type and allows to parse `json` documents with a given `GJSON syntax` to query for specific data. 
@@ -481,6 +488,21 @@ echo test\nline 2:
 `line-count` asserts the amount of lines printed to the output. If set to `0` this property is ignored.
 
  - name: `line-count`
+ - type: `int`
+ - default: `0`
+
+```yaml
+echo test\nline 2:
+  stdout:
+    line-count: 2
+```
+
+
+##### line-count-min
+
+`line-count-min` asserts the amount of lines printed to the output. If set to `0` this property is ignored.
+
+ - name: `line-count-min`
  - type: `int`
  - default: `0`
 

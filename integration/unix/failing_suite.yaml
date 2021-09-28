@@ -13,3 +13,20 @@ tests:
     command: cat ./integration/unix/_fixtures/file_output_1.txt
     stdout:
       file: ./integration/unix/_fixtures/file_output_0.txt
+
+  it should failed when not matching a a regular expression:
+    command: printf "lineA\n"
+    stdout:
+      match-pattern: '^line[0-9]$'
+
+  it should match maximum number of line count:
+    command: printf "line1\nline2\nline3\nline4"
+    stdout:
+      line-count-max: 2
+    exit-code: 0
+
+  it should match minimum number of line count:
+    command: printf "line1\nline2\nline3\nline4"
+    stdout:
+      line-count-min: 5
+    exit-code: 0
