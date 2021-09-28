@@ -121,7 +121,7 @@
             "properties": {
                 "config": {
                     "title": "Configuration for the test. Config can overwrite global configurations",
-                    "$ref": "#/definitions/config",
+                    "$ref": "#/definitions/config"
                 },
                 "command": {
                     "type": "string",
