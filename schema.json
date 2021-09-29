@@ -5,6 +5,36 @@
     "title": "Commander test specification schema",
     "description": "Test schema specification for defining tests",
     "definitions": {
+        "test": {
+            "type": "object",
+            "title": "Command test",
+            "properties": {
+                "config": {
+                    "title": "Configuration for the test. Config can overwrite global configurations",
+                    "$ref": "#/definitions/config"
+                },
+                "command": {
+                    "type": "string",
+                    "title": "Command to be tested"
+                },
+                "stdout": {
+                    "$ref": "#/definitions/output"
+                },
+                "stderr": {
+                    "$ref": "#/definitions/output"
+                },
+                "exit-code": {
+                    "$ref": "#/definitions/exitcode"
+                },
+                "skip": {
+                    "type": "boolean",
+                    "title": "Skip the test case"
+                }
+            },
+            "required": [
+                "command"
+            ]
+        },
         "config": {
             "type": "object",
             "title": "Configuration for the test. Config can overwrite global configurations",
@@ -117,33 +147,12 @@
         },
         "tests": {
             "type": "object",
-            "title": "Collected tests",
-            "properties": {
-                "config": {
-                    "title": "Configuration for the test. Config can overwrite global configurations",
-                    "$ref": "#/definitions/config"
-                },
-                "command": {
-                    "type": "string",
-                    "title": "Command to be tested"
-                },
-                "stdout": {
-                    "$ref": "#/definitions/output"
-                },
-                "stderr": {
-                    "$ref": "#/definitions/output"
-                },
-                "exit-code": {
-                    "$ref": "#/definitions/exitcode"
-                },
-                "skip": {
-                    "type": "boolean",
-                    "title": "Skip the test case"
-                }
-            },
-            "required": [
-                "command"
-            ]
+            "title": "Collection of tests",
+            "additionalProperties": {
+                "anyOf": [
+                    {"$ref": "#/definitions/test"}
+                ]
+            }
         }
     }
 }
