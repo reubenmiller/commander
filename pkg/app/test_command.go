@@ -10,9 +10,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/commander-cli/commander/v2/pkg/output"
-	"github.com/commander-cli/commander/v2/pkg/runtime"
-	"github.com/commander-cli/commander/v2/pkg/suite"
+	"github.com/reubenmiller/commander/v3/pkg/output"
+	"github.com/reubenmiller/commander/v3/pkg/runtime"
+	"github.com/reubenmiller/commander/v3/pkg/suite"
 )
 
 var (

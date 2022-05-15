@@ -7,8 +7,8 @@ import (
 	"os"
 	run "runtime"
 
-	"github.com/commander-cli/commander/v2/pkg/runtime"
 	"github.com/logrusorgru/aurora"
+	"github.com/reubenmiller/commander/v3/pkg/runtime"
 )
 
 // OutputWriter represents the output

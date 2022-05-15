@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/commander-cli/commander/v2/pkg/matcher"
+	"github.com/reubenmiller/commander/v3/pkg/matcher"
 )
 
 // ValidationResult will be returned after the validation was executed

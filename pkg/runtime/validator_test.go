@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/commander-cli/commander/v2/pkg/matcher"
+	"github.com/reubenmiller/commander/v3/pkg/matcher"
 	"github.com/stretchr/testify/assert"
 )
 

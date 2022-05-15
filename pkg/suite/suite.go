@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/commander-cli/commander/v2/pkg/runtime"
+	"github.com/reubenmiller/commander/v3/pkg/runtime"
 )
 
 // Suite represents the current tests, nodes and configs.

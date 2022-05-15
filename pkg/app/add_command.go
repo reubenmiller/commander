@@ -4,8 +4,8 @@ import (
 	"strings"
 
 	"github.com/commander-cli/cmd"
-	"github.com/commander-cli/commander/v2/pkg/runtime"
-	"github.com/commander-cli/commander/v2/pkg/suite"
+	"github.com/reubenmiller/commander/v3/pkg/runtime"
+	"github.com/reubenmiller/commander/v3/pkg/suite"
 	"gopkg.in/yaml.v2"
 )
 
